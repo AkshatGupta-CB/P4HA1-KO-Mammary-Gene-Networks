@@ -16,7 +16,7 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 
 - Normalise & log-transform
 
-#### Input: data/counts.tsv, data/metadata.tsv
+#### Input: Data/seurat.integrated.5Ht_6Ho.counts.tar.xz (must be de-compressed to get csv file first), data/seurat.integrated.5Ht_6Ho.metadata.csv)
 
 #### Output: data/processed/processed_{strain}.h5ad
 
@@ -90,3 +90,4 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 
 #### Output: Two CSV files containing AUC matrices for the two mouse types 
 
+# Code/Cluster_Analysis
