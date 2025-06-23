@@ -34,7 +34,6 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 **Notebooks**:
 
 - `pySCENIC_step1_GRN_5ht_basal_no_ptprc_adgre1.ipynb`
-
 - `pySCENIC_step1_GRN_6ho_basal_no_ptprc_adgre1.ipynb`
 
 **Purpose**
@@ -56,7 +55,6 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 **Notebooks**
 
 - `pySCENIC_step2_5ht_basal_no_ptprc_adgre1.ipynb`
-
 - `pySCENIC_step2_6ho_basal_no_ptprc_adgre1.ipynb`
 
 **Purpose**
@@ -77,14 +75,13 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 **Notebooks**
 
 - `Get_stats_5Ht_basal_step2.ipynb`
-
 - `Get_stats_6ho_basal_step2.ipynb`
 
 **Purpose**
 
 - Summarise TFs, targets, and replicate frequency for each preliminary regulon
 
-## Step 2c – Aggregation
+## Step 2c – Aggregation of regulons across all runs
 
 **Notebooks**
 
@@ -92,7 +89,7 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 
 **Purpose**
 
-- Merge 20 replicates into consensus regulons
+- Aggregare 20 replicates into consensus regulons
 
 **Output** 
 
@@ -105,7 +102,6 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 **Notebooks**
 
 - `pySCENIC_step3_Agg_5ht_basal_no_ptprc_adgre1.ipynb`
-
 - `pySCENIC_step3_Agg_6ho_basal_no_ptprc_adgre1.ipynb`
 
 **Purpose**
@@ -123,6 +119,7 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 ---
 
 ## Prepare AUC matrices for clustering  
+
 **Notebook**
 
 - `Prepare_AUCMtx_for_cluster_analysis_no_ptprc_adgre1.ipynb`  
@@ -143,7 +140,27 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 
 ---
 
-## Step 1 – Differential gene expression per sub-cluster  
+## Step 1 – Identify significant regulons between the two mouse groups 
+
+**Notebook**  
+- `Basal_find_sig_regulon_Wilcox.ipynb`  
+
+**Purpose**  
+- Append sub-cluster labels to the per-cell AUC matrix.  
+- For each sub-cluster, run Wilcoxon rank-sum tests (5Ht vs 6Ho) on every regulon.  
+- Keep regulons with **BH-adjusted p < 0.05** *and* **|ΔAUC| ≥ 0.15**.  
+
+**Input**  
+- Scaled AUC matrices (from *Prepare AUC matrices for clustering*)  
+- List of cells in each subcluster/Sub-cluster labels (.txt)  
+
+**Output**  
+- AUC matrices (.csv) with subcluster information
+- Significantly different regulons (.txt) for each subcluster 
+
+---
+
+## Step 2 – Differential gene expression per sub-cluster  
 
 **Scripts**
 - `DGE_for_subcluster/find_markerGenes_subclusters_5ht.R`  
@@ -155,15 +172,47 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 - For unique subclusters, DGE is performed between subcluster vs all other cells in that mouse type.
 
 **Input**  
-- Raw or normalised counts matrix (`data/counts.tsv`).  
-- `metadata` with sub-cluster labels.  
+- `Data/seurat.integrated.5Ht_6Ho.counts.tar.xz` (must be de-compressed to get csv file first)
+- `data/seurat.integrated.5Ht_6Ho.metadata.csv`
+- `metadata` with cell information of cells used in network analysis
+-  AUC matrices (.csv) with subcluster information (from **Identify significant regulons between the two mouse groups**)
 
 **Output**  
-- `dge_results/5ht_subcluster*_dge.tsv`  
-- `dge_results/6ho_subcluster*_dge.tsv`
+- Differentially expressed genes (.txt) for each subcluster in 5Ht and 6Ho
 
 ---
-## Step 1 – UMAP & centroid analysis 
+
+## Step 3 – Identify differentially-expressed target genes (DETGs) for significantly different regulons
+
+**Notebook**  
+- `Get_differential_regulons_Basal_fc15_p005.ipynb`  
+
+**Purpose**  
+- Identify DETGs of significant regulons (Step 1) with DGE lists (Step 2) to obtain **DETGs** per regulon, per sub-cluster.  
+
+**Input**  
+- Significantly different regulons (.txt) for each subcluster (Step 1)
+- Differentially expressed genes (.txt) for each subcluster in 5Ht and 6Ho
+- 
+**Output**  
+- DETGs for significant regulons (.csv) in each subcluster of the 5Ht and 6Ho mice.
+
+---
+
+## Step 5 – Summarise DETG statistics  
+**Notebook**  
+- `Get_Stats_basal_fc15_p005.ipynb`  
+
+**Purpose**  
+- Process and summarize DETG results from step 4.  
+
+**Input**  
+- DETGs for significant regulons (.csv) in each subcluster of the 5Ht and 6Ho mice (from Step 4)  
+
+**Output**  
+- Statistics and Summary of DETGs identfified in each regulon in each subcluster of the 5Ht and 6Ho mice.
+---
+## UMAP & centroid analysis 
 
 **Script**  
 - `UMAP_centroid_analysis_reg_act_plots.R`  
@@ -174,61 +223,8 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 - Compute Euclidean distances between the centroids of all sub-clusters (5Ht ↔ 6Ho).  
 
 **Input**  
-- Scaled AUC matrices (from *Prepare AUC matrices for clustering*)  
-- Cell lists for subclusters
+- AUC matrices (.csv) with subcluster information (From **Identify significant regulons between the two mouse groups**) 
 
 **Output**  
-- `figures/UMAP_regulon_activity.pdf`  
-- `results/centroid_distance.tsv`
-
----
-
-## Step 3 – Identify significant regulons between genotypes  
-**Notebook**  
-- `Basal_find_sig_regulon_Wilcox.ipynb`  
-
-**Purpose**  
-- Append sub-cluster labels to the per-cell AUC matrix.  
-- For each sub-cluster, run Wilcoxon rank-sum tests (5Ht vs 6Ho) on every regulon.  
-- Keep regulons with **BH-adjusted p < 0.05** *and* **|ΔAUC| ≥ 0.15**.  
-
-**Input**  
-- Merged AUC matrix from Step 0.  
-- Sub-cluster labels.  
-
-**Output**  
-- `signif_regulons_per_subcluster.tsv`
-
----
-
-## Step 4 – Retrieve differentially-expressed target genes (DETGs) for significantly different regulons  
-**Notebook**  
-- `Get_differential_regulons_Basal_fc15_p005.ipynb`  
-
-**Purpose**  
-- Intersect significant regulons (Step 3) with DGE lists (Step 2) to obtain **DETGs** per regulon, per sub-cluster.  
-
-**Input**  
-- `signif_regulons_per_subcluster.tsv`  
-- `dge_results/*_dge.tsv`  
-
-**Output**  
-- `detg_lists/<subcluster>_detg.tsv`
-
----
-
-## Step 5 – Summarise DETG statistics  
-**Notebook**  
-- `Get_Stats_basal_fc15_p005.ipynb`  
-
-**Purpose**  
-- Process DETG counts per regulon and per sub-cluster.  
-- Produce summary tables and publication-ready plots.  
-
-**Input**  
-- `detg_lists/` (from Step 4)  
-
-**Output**  
-- `detg_stats_summary.tsv`  
-- `figures/DETGs_summary_plots.pdf`
-
+- UMAP plots of AUC matrices with subcluster annotation
+- Distances between centroids of pairs of subclusters (5Ht ↔ 6Ho).
