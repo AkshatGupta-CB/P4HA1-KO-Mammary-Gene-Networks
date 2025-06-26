@@ -1,8 +1,8 @@
 # Single-Cell-Gene-Networks-in-P4HA1-Knockout-Mouse-Mammary-Glands
 
 # Code/Network_Analysis
-Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotypes (5Ht and 6Ho).
-
+Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse groups (5Ht and 6Ho).
+Please ensure all input and output paths are changed to match your needs.
 ---
 
 ## Pre-processing
@@ -21,11 +21,11 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 **Input**
 
 - `Data/seurat.integrated.5Ht_6Ho.counts.tar.xz` (must be de-compressed to get csv file first)
-- `data/seurat.integrated.5Ht_6Ho.metadata.csv`
+- `Data/seurat.integrated.5Ht_6Ho.metadata.csv`
 
 **Output**   
 
-- data/processed/processed_{strain}.h5ad
+- `NetworkData_HVGs_basal_5ht6ho_without_PTPRC_Adgre1.h5ad`
 
 ---
 
@@ -42,11 +42,12 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 
 **Input**   
 
-- processed .h5ad
+- `NetworkData_HVGs_basal_5ht6ho_without_PTPRC_Adgre1.h5ad`
+- List of Transcription Factors in Mus Musculus. Also provided here - `Data/allTFs_mm.txt`
 
 **Output**   
 
-- results/step1/run*/adjacencies.tsv
+- Twenty CSV files (for each mouse group) containing adjancencies inferred by GRNBoost2
 
 ---
 
@@ -63,12 +64,13 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 
 **Input**
 
--
--
+- Feather files for motif enrichment - can be download here: https://resources.aertslab.org/cistarget/databases/mus_musculus/mm10/refseq_r80/mc_v10_clust/gene_based/
+- Twenty CSV files containing adjancencies inferred by GRNBoost2
+- List of Transcription Factors in Mus Musculus. Also provided here - `Data/allTFs_mm.txt`
 
 **Output**  
 
-- 
+- Twenty Pickle Files (for each mouse group) containing regulons
 
 ## Step 2b – QC / Statistics
 
@@ -90,6 +92,10 @@ Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse genotyp
 **Purpose**
 
 - Aggregare 20 replicates into consensus regulons
+
+**Input** 
+
+- Twenty Pickle Files (for each mouse group) containing regulons
 
 **Output** 
 
@@ -167,14 +173,14 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 - `DGE_for_subcluster/find_markerGenes_subclusters_6ho.R`  
 
 **Purpose**  
-- Perform DGE for each subcluster in 5Ht and 6Ho.
+- Perform DGE for each subcluster in 5Ht and 6Ho
 - For similar subclusters, DGE is peformed between subcluster in 5Ht vs 6Ho
-- For unique subclusters, DGE is performed between subcluster vs all other cells in that mouse type.
+- For unique subclusters, DGE is performed between subcluster vs all other cells in that mouse type
 
 **Input**  
 - `Data/seurat.integrated.5Ht_6Ho.counts.tar.xz` (must be de-compressed to get csv file first)
 - `data/seurat.integrated.5Ht_6Ho.metadata.csv`
-- `metadata` with cell information of cells used in network analysis
+- `metadata` with cell information of cells used in network analysis. Can be obtained from the `obs` layer in `NetworkData_HVGs_basal_5ht6ho_without_PTPRC_Adgre1.h5ad`
 -  AUC matrices (.csv) with subcluster information (from **Identify significant regulons between the two mouse groups**)
 
 **Output**  
@@ -188,14 +194,14 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 - `Get_differential_regulons_Basal_fc15_p005.ipynb`  
 
 **Purpose**  
-- Identify DETGs of significant regulons (Step 1) with DGE lists (Step 2) to obtain **DETGs** per regulon, per sub-cluster.  
+- Identify DETGs of significant regulons (Step 1) with DGE lists (Step 2) to obtain **DETGs** per regulon, per sub-cluster
 
 **Input**  
 - Significantly different regulons (.txt) for each subcluster (Step 1)
 - Differentially expressed genes (.txt) for each subcluster in 5Ht and 6Ho
 - 
 **Output**  
-- DETGs for significant regulons (.csv) in each subcluster of the 5Ht and 6Ho mice.
+- DETGs for significant regulons (.csv) in each subcluster of the 5Ht and 6Ho mice
 
 ---
 
@@ -210,8 +216,10 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 - DETGs for significant regulons (.csv) in each subcluster of the 5Ht and 6Ho mice (from Step 4)  
 
 **Output**  
-- Statistics and Summary of DETGs identfified in each regulon in each subcluster of the 5Ht and 6Ho mice.
+- Statistics and Summary of DETGs identfified in each regulon in each subcluster of the 5Ht and 6Ho mice
+
 ---
+
 ## UMAP & centroid analysis 
 
 **Script**  
@@ -220,11 +228,21 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 **Purpose**  
 - Run UMAP on the AUC matrices.  
 - Plot UMAPs coloured by sub-cluster.  
-- Compute Euclidean distances between the centroids of all sub-clusters (5Ht ↔ 6Ho).  
+- Compute Euclidean distances between the centroids of all sub-clusters (5Ht ↔ 6Ho)
 
 **Input**  
 - AUC matrices (.csv) with subcluster information (From **Identify significant regulons between the two mouse groups**) 
 
 **Output**  
 - UMAP plots of AUC matrices with subcluster annotation
-- Distances between centroids of pairs of subclusters (5Ht ↔ 6Ho).
+- Distances between centroids of pairs of subclusters (5Ht ↔ 6Ho)
+
+---
+
+# Code/Figures
+
+Code to generate all figures is present in this folder. The file name includes the figures it generates. 
+
+---
+
+##### For any questions, please contact akshatg2@alumni.cmu.edu.
