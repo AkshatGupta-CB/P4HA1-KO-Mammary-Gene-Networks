@@ -19,12 +19,10 @@ Please ensure all input and output paths are changed to match your needs.
 - Normalise & log-transform
 
 **Input**
-
 - `Data/seurat.integrated.5Ht_6Ho.counts.tar.xz` (must be de-compressed to get csv file first)
 - `Data/seurat.integrated.5Ht_6Ho.metadata.csv`
 
 **Output**   
-
 - `NetworkData_HVGs_basal_5ht6ho_without_PTPRC_Adgre1.h5ad`
 
 ---
@@ -41,12 +39,10 @@ Please ensure all input and output paths are changed to match your needs.
 - Run GRNBoost2 twenty times to infer gene network and reduce stochasticity
 
 **Input**   
-
 - `NetworkData_HVGs_basal_5ht6ho_without_PTPRC_Adgre1.h5ad`
 - List of Transcription Factors in Mus Musculus. Also provided here - `Data/allTFs_mm.txt`
 
 **Output**   
-
 - Twenty CSV files (for each mouse group) containing adjancencies inferred by GRNBoost2
 
 ---
@@ -63,13 +59,11 @@ Please ensure all input and output paths are changed to match your needs.
 - Convert adjacencies → putative regulons using motif databases
 
 **Input**
-
 - Feather files for motif enrichment - can be download here: https://resources.aertslab.org/cistarget/databases/mus_musculus/mm10/refseq_r80/mc_v10_clust/gene_based/
 - Twenty CSV files containing adjancencies inferred by GRNBoost2
 - List of Transcription Factors in Mus Musculus. Also provided here - `Data/allTFs_mm.txt`
 
 **Output**  
-
 - Twenty Pickle Files (for each mouse group) containing regulons
 
 ## Step 2b – QC / Statistics
@@ -94,11 +88,9 @@ Please ensure all input and output paths are changed to match your needs.
 - Aggregare 20 replicates into consensus regulons
 
 **Input** 
-
 - Twenty Pickle Files (for each mouse group) containing regulons
 
 **Output** 
-
 - Two Pickle files containing aggregated regulons from all runs in the two mouse types 
 
 ---
@@ -115,7 +107,6 @@ Please ensure all input and output paths are changed to match your needs.
 - Compute regulon AUC per cell → activity matrices
 
 **Output**
-
 - Two CSV files containing AUC matrices for the two mouse types 
 
 # Code/Cluster_Analysis
@@ -136,12 +127,10 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 - Reorders the 6Ho AUC matrix to match the regulon order of the clustered 5Ht AUC matrix  
 
 **Input**  
-
 - AUC matrices generated in *Network Analysis Step 3*
 - .CDT file of the clustered 5Ht AUC matrix
 
 **Output**  
-
 - Scaled AUC matrices (.csv files) for 5Ht and 6Ho
 
 ---
@@ -162,8 +151,8 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 
 **Output**  
 - AUC matrices (.csv) with subcluster information
-- Significantly different regulons (.txt) for each subcluster 
-
+- Significantly different regulons (.txt) for each subcluster
+  
 ---
 
 ## Step 2 – Differential gene expression per sub-cluster  
@@ -199,7 +188,7 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 **Input**  
 - Significantly different regulons (.txt) for each subcluster (Step 1)
 - Differentially expressed genes (.txt) for each subcluster in 5Ht and 6Ho
-- 
+  
 **Output**  
 - DETGs for significant regulons (.csv) in each subcluster of the 5Ht and 6Ho mice
 
