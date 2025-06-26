@@ -3,6 +3,9 @@
 # Code/Network_Analysis
 Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse groups (5Ht and 6Ho).
 Please ensure all input and output paths are changed to match your needs.
+
+Versions of key packages have been listed in `packages.txt`
+
 ---
 
 ## Pre-processing
