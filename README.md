@@ -8,6 +8,33 @@ Versions of key packages have been listed in `packages.txt`
 
 ---
 
+## Cell annotation by reference dataset
+
+**R Notebook**
+- `Cell_annotation_by_reference_dataset.Rmd`
+
+**Purpose**
+
+- Use an external reference dataset which contains finely resolved epithelial subtypes([GSE216542](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE216542)) for cell type annotation.
+
+- Cross validate the cell type label of our dataset through the annotations.
+
+- Refine the annotation and ensure more reliable identification of basal epithelial cells.
+
+
+**Input**
+- Reference: `GSE216542_RNA_Metadata_Final.csv.gz`, `GSE216542_RNA_Counts_Final.rds.gz` ([download link](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE216542))
+- Target: `Data/seurat.integrated.5Ht_6Ho.counts.tar.xz` (must be de-compressed), `Data/seurat.integrated.5Ht_6Ho.metadata.csv`
+
+
+**Output**   
+- `5Ht_with_annotation_by_ref_data.csv`
+- `6Ho_with_annotation_by_ref_data.csv`
+
+---
+
+---
+
 ## Pre-processing
 
 **Notebook**
