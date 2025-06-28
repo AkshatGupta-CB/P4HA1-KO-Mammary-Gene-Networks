@@ -15,11 +15,9 @@ Versions of key packages have been listed in `packages.txt`
 
 **Purpose**
 
-- Use an external reference dataset which contains finely resolved epithelial subtypes([GSE216542](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE216542)) for cell type annotation.
+- Use an external reference dataset ([GSE216542](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE216542)) for cell type annotation.
 
-- Cross validate the cell type label of our dataset through the annotations.
-
-- Refine the annotation and ensure more reliable identification of basal epithelial cells.
+- Cross validate with the cell type label of our dataset to ensure more reliable identification of basal epithelial.
 
 
 **Input**
@@ -30,8 +28,6 @@ Versions of key packages have been listed in `packages.txt`
 **Output**   
 - `5Ht_with_annotation_by_ref_data.csv`
 - `6Ho_with_annotation_by_ref_data.csv`
-
----
 
 ---
 
