@@ -1,0 +1,119 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(Seurat)
+library(ggplot2)
+
+# set path
+labeled_counts_path <- "../../OriginalData/GSE216542_RNA_Counts_Final.rds"  
+labeled_meta_path <- "../../OriginalData/GSE216542_RNA_Metadata_Final.txt" 
+unlabeled_counts_path <- "../../OriginalData/seurat.integrated.5Ht_6Ho.counts.csv"
+unlabeled_meta_path <- "../../OriginalData/seurat.integrated.5Ht_6Ho.metadata.csv" 
+
+# read labeled data
+labeled_counts <- readRDS(labeled_counts_path)
+labeled_meta <- read.table(labeled_meta_path, header = TRUE, sep = "\t", row.names = 1)
+
+# read unlabeled data
+unlabeled_counts <- read.csv(unlabeled_counts_path, row.names = 1)
+unlabeled_meta <- read.csv(unlabeled_meta_path, row.names = 1)
+
+# turn into Seurat obj
+labeled_seurat <- CreateSeuratObject(counts = labeled_counts, meta.data = labeled_meta)
+unlabeled_seurat <- CreateSeuratObject(counts = unlabeled_counts, meta.data = unlabeled_meta)
+
+# cell filtering
+labeled_seurat <- subset(labeled_seurat, subset = nFeature_RNA > 300 & nFeature_RNA < 5000 & percent.mt <= 10)
+unlabeled_seurat <- subset(unlabeled_seurat, subset = nFeature_RNA > 300 & nFeature_RNA < 5000 & percent.mt <= 10)
+
+# Only keep cells with orig.ident == "5Ht"
+unlabeled_seurat <- subset(unlabeled_seurat, subset = orig.ident == "5Ht")
+
+# Preprocessing
+labeled_seurat <- NormalizeData(labeled_seurat)
+labeled_seurat <- FindVariableFeatures(labeled_seurat)
+
+unlabeled_seurat <- NormalizeData(unlabeled_seurat)
+unlabeled_seurat <- FindVariableFeatures(unlabeled_seurat)
+
+# Selection of a common set of genes for integration
+integration_features <- SelectIntegrationFeatures(object.list = list(labeled_seurat, unlabeled_seurat), 
+                                                  nfeatures = 2000)
+
+# Scale Data on both datasets
+labeled_seurat <- ScaleData(labeled_seurat, features = integration_features)
+unlabeled_seurat <- ScaleData(unlabeled_seurat, features = integration_features)
+
+# PCA
+labeled_seurat <- RunPCA(labeled_seurat, features = integration_features)
+unlabeled_seurat <- RunPCA(unlabeled_seurat, features = integration_features)
+
+# Find anchors between both groups
+anchors <- FindIntegrationAnchors(object.list = list(labeled_seurat, unlabeled_seurat), 
+                                  anchor.features = integration_features)
+
+# integrate data
+integrated_seurat <- IntegrateData(anchorset = anchors)
+
+# Scale Data again and dimension reduction
+integrated_seurat <- ScaleData(integrated_seurat)
+integrated_seurat <- RunPCA(integrated_seurat, npcs = 30)
+integrated_seurat <- RunUMAP(integrated_seurat, reduction = "pca", dims = 1:30)
+
+# label predicting
+transfer_anchors <- FindTransferAnchors(reference = labeled_seurat, 
+                                        query = integrated_seurat, 
+                                        dims = 1:30)  
+
+predictions <- TransferData(anchorset = transfer_anchors, 
+                            refdata = labeled_seurat$BaseAnnotation, 
+                            dims = 1:30)
+
+integrated_seurat <- AddMetaData(integrated_seurat, metadata = predictions)
+
+# Visualization
+integrated_seurat$dataset <- ifelse(rownames(integrated_seurat@meta.data) %in% rownames(labeled_seurat@meta.data), "labeled", "unlabeled")
+
+p1 <- DimPlot(
+  subset(integrated_seurat, subset = dataset == "labeled"), 
+  reduction = "umap", 
+  group.by = "BaseAnnotation", 
+  label = TRUE, 
+  repel = TRUE,
+  pt.size = 0.01
+) + ggtitle("Labeled and Predicted Cell Types (Labeled Only)")+
+  xlim(-15, 15) + ylim(-15, 15)
+
+p2 <- DimPlot(
+  subset(integrated_seurat, subset = dataset == "unlabeled"), 
+  reduction = "umap", 
+  group.by = "predicted.id", 
+  label = TRUE, 
+  repel = TRUE,
+  pt.size = 0.01
+) + ggtitle("Predicted Labels for Unlabeled Data (Unlabeled Only)")+
+  xlim(-15, 15) + ylim(-15, 15)
+
+p3 <- DimPlot(integrated_seurat, reduction = "umap", group.by = "dataset", label = TRUE, pt.size = 0.01, repel = TRUE) +
+  ggtitle("Labeled vs Unlabeled Data Distribution")+
+  xlim(-15, 15) + ylim(-15, 15)
+
+p4 <- DimPlot(integrated_seurat, reduction = "umap", 
+              group.by = "predicted.id", 
+              label = TRUE, repel = TRUE, pt.size = 0.01) +
+  ggtitle("Labeled and Unlabeled Data with Cell Type Labels") +
+  xlim(-15, 15) + ylim(-15, 15)
+
+print(p1)
+print(p2)
+print(p3)
+print(p4)
+```
+
+```{r}
+write.csv(integrated_seurat@meta.data[integrated_seurat$dataset == "unlabeled", ], 
+          file = "../../Results/Cell_annotation_Ke/5Ht_with_annotation_by_ref_data.csv")
+```
