@@ -1,4 +1,5 @@
 # Single-Cell-Gene-Networks-in-P4HA1-Knockout-Mouse-Mammary-Glands
+[![DOI](https://zenodo.org/badge/882913770.svg)](https://doi.org/10.5281/zenodo.15765180)
 
 # Code/Network_Analysis
 Pipeline for reconstructing gene-regulatory networks (GRNs) in two mouse groups (5Ht and 6Ho).
