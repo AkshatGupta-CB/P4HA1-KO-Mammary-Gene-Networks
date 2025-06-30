@@ -35,9 +35,11 @@ pca_result <- prcomp(scaled_matrix, center = TRUE, scale. = TRUE)
 
 # Extract the top 15 PCs
 pca_coords <- as.data.frame(pca_result$x[, 1:15])  # Take first 15 PCs
-pca_coords$Group <- metadata$Cluster  # Add the cluster information (e.g., 5Ht or 6Ho)
+pca_coords$Group <- metadata$Cluster  # Add the cluster information 
 
 # Run UMAP on the PCA-reduced data
+set.seed(42)                # R-level RNG
+umap_config$random_state <- 42  # C++ side RNG
 umap_config <- umap.defaults
 umap_config$n_neighbors <- 30  
 umap_config$min_dist <- 0.3    
@@ -46,13 +48,13 @@ umap_config$metric <- "euclidean"
 
 umap_result <- umap(pca_coords[,1:15], config = umap_config)
 
-# Step 4: Convert UMAP results to dataframe
+# Convert UMAP results to dataframe
 umap_df <- as.data.frame(umap_result$layout)
 colnames(umap_df) <- c("UMAP_1", "UMAP_2")
 umap_df$Group <- metadata$group   # Add group information back
 
 
-# Step 5: Plot UMAP for each group
+# Plot UMAP for each group
 ggplot(umap_df, aes(x = UMAP_1, y = UMAP_2, color = Group)) +
   geom_point(alpha = 0.6) +
   #facet_wrap(~Group) +  # Create separate plots for each group
@@ -62,15 +64,15 @@ ggplot(umap_df, aes(x = UMAP_1, y = UMAP_2, color = Group)) +
 
 umap_result <- umap(pca_coords[, 1:15], config = umap_config)  # Exclude cluster column
 
-# Step 4: Convert UMAP results to dataframe
+# Convert UMAP results to dataframe
 umap_df <- as.data.frame(umap_result$layout)
 colnames(umap_df) <- c("UMAP_1", "UMAP_2")
 umap_df$Cluster <- pca_coords$Group  # Add cluster information back
 
-# Step 5: Define unique subclusters
+# Define unique subclusters
 similar_clusters <- c('S1','S2','S3')
 
-# Step 6: Loop through subclusters and create separate plots
+# Loop through subclusters and create separate plots
 for (subcluster in similar_clusters) {
   # Create a new column marking the selected subcluster pair
   group_vec <- c()
@@ -92,9 +94,9 @@ for (subcluster in similar_clusters) {
   
   p <- ggplot(umap_df, aes(x = UMAP_1, y = UMAP_2, color = Group)) +
     # plot grey “Others” first
-    geom_point(data = subset(umap_df, Group == "Others"), alpha = 0.6) +
+    geom_point(data = subset(umap_df, Group == "Others"), alpha = 1) +
     # then highlight the subcluster points
-    geom_point(data = subset(umap_df, Group != "Others"), alpha = 0.6) +
+    geom_point(data = subset(umap_df, Group != "Others"), alpha = 1) +
     # use your custom colour mapping
     scale_color_manual(values = color_mapping) +
     # minimal base theme + customized elements
@@ -110,18 +112,17 @@ for (subcluster in similar_clusters) {
       axis.title.y   = element_text(size = 20),
       plot.title     = element_text(size = 35, face = "plain"),
       legend.position  = "none"        # remove the legend
-    ) +xlim(-6, 4) + ylim(-5, 5) #+ 
-    #ggtitle(paste(subcluster))
+    ) +xlim(-6, 4) + ylim(-5, 5) 
   
   # Display the plot
   print(p)
   ggsave(paste0('../MAnuscript/PLOS_Genetics_sub_2/Figures/Regulon_activityv3_plot_',subcluster,'.png'), plot = p, width = 8, height = 6)
 }
 
-# Step 5: Define unique subclusters
+# Define unique subclusters
 unique_clusters <- c('U1')
 
-# Step 6: Loop through subclusters and create separate plots
+# Loop through subclusters and create separate plots
 for (subcluster in unique_clusters) {
   # Create a new column marking the selected subcluster pair
   group_vec <- c()
@@ -132,7 +133,6 @@ for (subcluster in unique_clusters) {
       group_vec <- c(group_vec, "Others")
     }
   }
-  # Order groups
   
   # Dynamically map colors
   if (subcluster == 'U1') {
@@ -143,9 +143,9 @@ for (subcluster in unique_clusters) {
   
   p <- ggplot(umap_df, aes(x = UMAP_1, y = UMAP_2, color = Group)) +
     # plot grey “Others” first
-    geom_point(data = subset(umap_df, Group == "Others"), alpha = 0.6) +
+    geom_point(data = subset(umap_df, Group == "Others"), alpha = 1) +
     # then highlight the subcluster points
-    geom_point(data = subset(umap_df, Group != "Others"), alpha = 0.6) +
+    geom_point(data = subset(umap_df, Group != "Others"), alpha = 1) +
     # use your custom colour mapping
     scale_color_manual(values = color_mapping) +
     # minimal base theme + customized elements
