@@ -261,4 +261,4 @@ Code to generate all figures is present in this folder. The file name includes t
 
 ---
 
-##### For any questions, please contact akshatg2@alumni.cmu.edu.
+##### For any questions, please contact weiwu2@andrew.cmu.edu or akshatg2@alumni.cmu.edu.
