@@ -221,7 +221,7 @@ Pipeline for **cluster-level** comparison of regulon activity and gene expressio
 
 ---
 
-## Step 5 – Summarise DETG statistics  
+## Step 4 – Summarise DETG statistics  
 **Notebook**  
 - `Get_Stats_basal_fc15_p005.ipynb`  
 
