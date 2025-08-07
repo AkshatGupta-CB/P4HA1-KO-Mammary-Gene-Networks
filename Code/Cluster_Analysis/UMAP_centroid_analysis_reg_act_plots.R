@@ -38,8 +38,8 @@ pca_coords <- as.data.frame(pca_result$x[, 1:15])  # Take first 15 PCs
 pca_coords$Group <- metadata$Cluster  # Add the cluster information 
 
 # Run UMAP on the PCA-reduced data
-set.seed(42)                # R-level RNG
-umap_config$random_state <- 42  # C++ side RNG
+set.seed(2)                # R-level RNG
+umap_config$random_state <- 2  # C++ side RNG
 umap_config <- umap.defaults
 umap_config$n_neighbors <- 30  
 umap_config$min_dist <- 0.3    
@@ -200,6 +200,7 @@ distance_df <- as.data.frame(distance_matrix)
 # Step 5: Display the result
 library(openxlsx)
 write.xlsx(distance_df,'../MAnuscript/PLOS_Genetics_sub_2/Centroid_distances_basal_clust_reg_act.xlsx',rowNames=TRUE)
+
 
 
 
